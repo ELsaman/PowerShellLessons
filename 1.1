@@ -1,0 +1,130 @@
+Tips For excuting commands in Poweshell:
+-use tab completion when you begin enter the first few letter of a cmdlet, fun,variable,file,folder..etc
+-to run script or executable that is in current directory, you must put ".\" in front of script \setup.exe
+- ScriptExecution Policy : to run script Set_ExcutionPOlicy -ExcutionPolicy Bypass -Force
+- Move the Blinking cursor to a new fresh line hit ESC or Enter
+- open a script in anew tab ise.\somescript.ps1
+- show-Command to display dialog box to help you enter correct arguments Note : command with an astric next to it is a required value example Show-command Get-Services
+- what version of Powershell am i running : $Psversiontable 
+- running Powershell Scripts From Shared Folders :
+  example : Powershell.exe ''server''share\\script.ps1 -parameter "argument"
+  note : when ascript is run from a shared folder , the script never touches the local hard drive , it is executed in memory
+-Piping  (|)  and redirection operators >,>> :
+when i ant to feed the output of one command to another command as input usr piping operator
+example :Get-Process | Formate-list* 
+- if you want to redirct ">" or ">>" the output of acommand to afile , its usually work as expectex , but it is better to use comdlets like Out_File and Export_Csv instead
+ Example Get-Service | Export Csv -Path somefile.csv
+Get_process | Out_File - filePath Somefile.txt -append
+- Cmdlets are named wwith verb-noun pairs ,like "get-Process" and "Stop-Process", to male the cmdlets easier to identify and use, most Cmdlet take one or two parameters as input when the cmdlet is run
+======================================================================
+geting help in Poweshell :
+- to get help about rhe get-help cmdlet itself : get-help
+- to see alist of all cmdlets , aliases ,providers and help files : get-help*
+to see a listiong cmdlets that mati=ch a particular pattern : get-help Set* , get-help *loc*
+to see summary of the help for a specific cmdlet, like the get process cmdlets : get-help get-process
+to get more detailed help for a cmdlet, includingparamaeter sytax and examles : get-help get-process -full
+to pop up a searchable graphical windwo to display help text :
+get- help get-process -showwindow
+======================================================================
+Aliases : 
+alias is an alternative name for a frequently used cmdlet,function,script ,file 
+aliases can bee excuted or invoked just like thier targets
+common aliases you will encounter are the following
+Alias    Cmdlet
+dir      get-childitem
+ls       get-childitem
+cls      clear-hosr
+echo     write-output
+type     get-content
+del      remove-item
+ps       get-process
+cd       set-location
+pwd      get-location
+sort     sort-object
+to create annew aias for notepad.exe named nn : new-alias nn notepad.exe
+======================================================================
+-  Object, Properties and methods :
+- object eexample : $process =Get-Process -Name lsass
+  in this command, the Get_process cmdlet can create objects representing processes. in this case ,we gave the cmdlet the name of a paticular process (lsass) and the output object was places inside the $Process variable.
+  $Process is like a holder or pointer toward an object in memort, we cant see thatobject in memory,but we can see the variable in our command shell and in script 
+  for example an object representing a process has lots of properties :
+  $Process.Name 
+  $Process.Id
+  $Process.Company
+  $Process.kill
+  $Process.StartTime
+  $Process.VirtualMemorySize
+  $Process.Modules
+- a very useful cmdlet when you need help finding the properties and methods of an object is get-member. evey type or class of object in .NET has enumerate properties and methods that can be acceessed bt powershell
+example : to show rh properties and methodss of system.Diagonstics.Process objects :
+get-process | get-member
+if you have captures the output of a command to a variable , but you dont know what kind of data it is or what its member are, pipe that variable into get member
+$X = get-item hklm:\
+$x | get-member
+=========================================================================
+Drives and environment Variables :
+
+to see your installed providers and thier corresponding drive names :get-psProvider
+to see your currently drives :: get-psdrive
+the standard PowerShell Providers and drive names are :
+ProviderName      Drive(S)          Description
+Alias             Alias:\           Powershell Aliases
+Environment       C:\ ,D:\,E:\      Environmental Variables
+FileSystem        C:\ ,D:\,E:\      Standard Filesystem
+Function          Function :\       PowerShell Functions
+Registery         hklm:\, hkcu:\    Windows Registery
+Variable          Variable:\        PowerShell Variables
+Certificate       Cert:\            Digital Certificate Stores
+cmdlets for manipulating items in drive containers:
+new-item (alias :ni ,but see also mkdir
+remove-item (aliases :ri,del,rm,rd,rmdir)
+copy-item(aliases :cpi,copy,cp)
+rename-iem(aliases:rn,rn,ren)
+example:
+new-item $homw\somefile.txt -type file
+new-item $home\somefolder -type directory
+new-item $home\software\somekey -type key
+new-item hkcu:\software\somekey\somevalue -type value
+- to see all your environment variables : get-Childitem env:\ dir env:\
+
+on your computer :
+dir hkcu:\ #Hive  : HKEY_CURRENT_USER 
+dir alias :\*s*
+cd cert:\localMachine\ca
+dir env:\
+$env:PATH 
+$env:COMPUTERNAME
+#env:windor
+#env:systemRoot 
+Get-PSDrive
+
+=============================================
+
+your own functions , aliases,and variables in memory will exist only in the current session : hence,if you close Powershell and open it again , these items are lost , by adding them to your profile, however , they can be reloaded evey time you open powershell
+a powershell "profile" is aset of scripts that ru automaticaly every time Powershell is openend. none of these scripts exists by default, but they can be created.
+the paths to these scripts are contained in the properties of a special variable named "$profile"
+$Profile |formate-list * -force
+the $profile varuiable has the following properties , each of which contains a script ath. and if all of these scripts exist, this is also the order in which they are executed
+
+$profile.AllUserAllHosts  #run First
+$profile.AllUsersCurrentHost #run Second
+$Profile.CurrentUserAllHosts #run third
+$Profile.CurrentUserCurrentHost #run last
+not that CurrentUserCurrentHost is the default for the $profile Variiable,so these two commands will produce the same output
+
+=====================================================
+fuctions , cmdlets,and modules :
+functions and cmdlets are blocks of code rhat are each assigned an alias name.functions and cmdlets are typically loaded from modules,functions and cmdlets can be executed in the command shell and with Scripts by name
+- function :
+a function is ase of powershell script statement that have been assigned a name and that can accept zero or more prameter
+as input , you can use function as cmdlet.
+- to see a list of functions avaliable in the current shell : get-childitem function :\  ot dir function:\
+- cmdlets : get-process iss an example of a cmdlet. most cmmands unique to powershell are either cmdlets or scripts/functtions which run cmdlets
+cmdlet is alwatys compiled into a .NET binary dll
+-modules :  a module is one or more files that implement a set of cmdlets , fuctions , vaariables , aliases
+modules are a convenient way to organize code into manageable units.
+a primary file iin a module can be a Powerssshell script (.psm1) , acompiled binary (.dll)
+or a manifest file(.psd1), a mainfest specifies al of that module's components files , such as .psm1 scripts, .dll binaries ,xml type definitions ,graphics,videos,audio....
+- to see the default folders where Powershell serches for modules :
+$env : PsModulePath
+$env:PsModulePath -Split ";"
